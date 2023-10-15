@@ -10,14 +10,14 @@ public class LeaveAnimation : BaseBehaviour
         Up, Down, Left, Right
     }
 
-    private Transform _transform;
-    private Vector3 _defaultPosition;
+    private RectTransform _rectTransform;
+    private Vector2 _defaultPosition;
 
     private float _moveSpeed = 4000f;
 
     private void Play()
     {
-        Vector3 newPos = _defaultPosition;
+        Vector2 newPos = _defaultPosition;
 
         switch (_direction)
         {
@@ -38,13 +38,13 @@ public class LeaveAnimation : BaseBehaviour
                 break;
         }
 
-        _transform.position = newPos;
+        _rectTransform.anchoredPosition = newPos;
     }
 
     private void Awake()
     {
-        _transform = transform;
-        _defaultPosition = _transform.position;
+        _rectTransform = GetComponent<RectTransform>();
+        _defaultPosition = _rectTransform.anchoredPosition;
     }
 
     public override void OnEnable()
@@ -61,9 +61,9 @@ public class LeaveAnimation : BaseBehaviour
 
     public override void OnTick()
     {
-        if (_transform.position != _defaultPosition) 
+        if (_rectTransform.anchoredPosition != _defaultPosition) 
         {
-            _transform.position = Vector3.MoveTowards(_transform.position, _defaultPosition, _moveSpeed * Time.deltaTime);
+            _rectTransform.anchoredPosition = Vector2.MoveTowards(_rectTransform.anchoredPosition, _defaultPosition, _moveSpeed * Time.deltaTime);
         }
     }
 }

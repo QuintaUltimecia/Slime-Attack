@@ -27,12 +27,16 @@ public class MoveSpeed
 
     public async void StartMultiplier()
     {
+        StopMultiplier();
+
+        await Task.Delay(1);
+
         using (_cts = new CancellationTokenSource())
         {
             CurrentValue = _defaultValue * 2;
             OnBeforeUpSpeed?.Invoke();
 
-            await Task.Run(async () => 
+            await Task.Run(async () =>
             {
                 try
                 {

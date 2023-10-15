@@ -7,6 +7,8 @@ using UnityEngine;
 [RequireComponent(typeof(SphereCollider))]
 public sealed class Player : MonoBehaviour, IAbsorbingStay, IOnLeaderBoard
 {
+    public bool IsActive { get; private set; }
+
     [field: SerializeField]
     public Colorized Colorized { get; private set; }
 
@@ -29,7 +31,6 @@ public sealed class Player : MonoBehaviour, IAbsorbingStay, IOnLeaderBoard
     public Deformator Deformator { get; private set; }
     public Absorber Absorber { get; private set; }
     public Decor Decor { get; private set; }
-    public Collider Collider { get; private set; }
     public Wallet Wallet { get; private set; }
 
     public void Init(IInput input, Camera camera, MainCanvas mainCanvas, GameFeaturesModule gameFeatures)
@@ -38,11 +39,10 @@ public sealed class Player : MonoBehaviour, IAbsorbingStay, IOnLeaderBoard
         Deformator = GetComponent<Deformator>();
         Absorber = GetComponent<Absorber>();
         Decor = GetComponent<Decor>();
-        Collider = GetComponent<Collider>();
 
         Movement.Init(input, gameFeatures.SlimeSpeed);
         Absorber.Init(Deformator);
-        SlimeSize.Init(camera, mainCanvas.Canvas);
+        SlimeSize.Init(camera, mainCanvas.GetInternalPanel<GamePanel>().transform);
         Deformator.Init();
         Accessories.Init();
         SpeedParticle.Init(Movement);
@@ -51,13 +51,16 @@ public sealed class Player : MonoBehaviour, IAbsorbingStay, IOnLeaderBoard
         Movement.OnMove += (value) => 
             PlayerAnimationController.Move(value);
 
-        Absorber.OnAbsorbe += (IDeformPointProvider) => 
-            Deformator.Deformate(IDeformPointProvider);
+        Absorber.OnAbsorbe += (IDeformPointProvider) =>
+        {
+            if (IsActive == true)
+                Deformator.Deformate(IDeformPointProvider);
+        };
 
-        Decor.OnBeforeAbsorbe += () => { 
-            Movement.Disable(); 
-            Collider.enabled = false; 
-            SlimeSize.Disable(); };
+        Decor.OnBeforeAbsorbe += () => 
+        {
+            Disable();
+        };
 
         Deformator.OnDeformate += (value) => { 
             SlimeSize.UpdateText(value); 
@@ -71,33 +74,30 @@ public sealed class Player : MonoBehaviour, IAbsorbingStay, IOnLeaderBoard
         Wallet = mainCanvas.Wallet;
     }
 
-    public void Enable(Vector3 position)
+    public void Enable()
     {
-        Movement.SetPosition(position);
         Movement.Enable();
         SlimeSize.Enable();
+        SlimeVFX.Enable();
+        Deformator.Restart();
+        Decor.Restart();
+        Movement.ResetRotate();
+        Decor.ResetTransform();
+
+        IsActive = true;
     }
 
-    public void Disable(Vector3 position)
+    public void Disable()
     {
         Movement.Disable();
-        Movement.SetPosition(position);
         SlimeSize.Disable();
-        Deformator.Restart();
-        Movement.ResetRotate();
-        Collider.enabled = true;
+        SlimeVFX.Disable();
+
+        IsActive = false;
     }
 
     public Decor GetDecor() => Decor;
     public Deformator GetDeformator() => Deformator;
-
-    public int GetSize()
-    {
-        return SlimeSize.Value;
-    }
-
-    public string GetName()
-    {
-        return "<color=yellow>YOU</color>";
-    }
+    public int GetSize() => SlimeSize.Value;
+    public string GetName() => "<color=yellow>YOU</color>";
 }

@@ -18,7 +18,6 @@ public class EnemyAI : BaseBehaviour, IInput
     private Decor _origin;
 
     private Coroutine _timerRoutine;
-    private bool _isMoveFade = false;
 
     public System.Action<bool> OnMove;
 
@@ -40,7 +39,13 @@ public class EnemyAI : BaseBehaviour, IInput
 
     public void Restart()
     {
+        _transform.localPosition = Vector3.zero;
         _target = _decorContainer.GetDecorWithDistance(_transform, _deformator.GetSize(), _origin);
+    }
+
+    public void ResetPosition()
+    {
+        _transform.localPosition = Vector3.zero;
     }
 
     public void Enable() => _movement.Enable();
@@ -60,13 +65,13 @@ public class EnemyAI : BaseBehaviour, IInput
         {
             Vector3 position = _target.Transform.position - _transform.position;
 
-            if (_isMoveFade == false)
-            {
-                return position.normalized;
-            }
-            else 
+            if (Vector3.Distance(_target.Transform.position, _transform.position) < 0.1f)
             {
                 return position;
+            }
+            else
+            {
+                return position.normalized;
             }
         }
     }
@@ -78,10 +83,11 @@ public class EnemyAI : BaseBehaviour, IInput
         {
             _target = _decorContainer.GetDecorWithDistance(_transform, _deformator.GetSize(), _origin);
 
+            if (_target == null)
+                return;
+
             if (_target.TryGetComponent(out Player player))
             {
-                _isMoveFade = true;
-
                 _timerRoutine = StartCoroutine(Timer(() =>
                 {
                     _target = _decorContainer.GetDecorAfterPlayer(_transform, _deformator.GetSize(), _origin);
@@ -89,16 +95,10 @@ public class EnemyAI : BaseBehaviour, IInput
             }
             else if (_target.TryGetComponent(out Enemy enemy))
             {
-                _isMoveFade = true;
-
                 if (enemy.Deformator.GetSize() == _deformator.GetSize())
                 {
                     _target = _decorContainer.GetDecorAfterPlayer(_transform, _deformator.GetSize(), _origin);
                 }
-            }
-            else
-            {
-                _isMoveFade = false;
             }
         }
     }

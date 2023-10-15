@@ -154,7 +154,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <RotateTransform>k__BackingField: {fileID: 2117459456974681055}
-  _rotationFade: 8
 --- !u!54 &928548998979480189
 Rigidbody:
   m_ObjectHideFlags: 0

@@ -17,9 +17,9 @@ public class NickName : BaseBehaviour
 
     private Camera _camera;
 
-    public void Init(string name, Camera camera, Canvas canvas)
+    public void Init(string name, Camera camera, Transform container)
     {
-        _nickUI = Instantiate(_nickUIPrefab, canvas.transform);
+        _nickUI = Instantiate(_nickUIPrefab, container);
         _camera = camera;
         _transform = transform;
         _gameObject = gameObject;

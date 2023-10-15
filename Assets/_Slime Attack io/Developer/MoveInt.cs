@@ -5,20 +5,20 @@ public class MoveInt : MonoBehaviour
 {
     private Transform _transform;
 
-//#if UNITY_EDITOR
-//    private void Update()
-//    {
-//        if (_transform == null)
-//        {
-//            if (Application.isPlaying == false)
-//                _transform = transform;
-//        }
-//        else
-//        {
-//            Move();
-//        }
-//    }
-//#endif
+#if UNITY_EDITOR
+    private void Update()
+    {
+        if (_transform == null)
+        {
+            if (Application.isPlaying == false)
+                _transform = transform;
+        }
+        else
+        {
+            Move();
+        }
+    }
+#endif
 
     private void Move()
     {

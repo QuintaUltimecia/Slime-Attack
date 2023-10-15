@@ -7,4 +7,7 @@ public class GamePanel : BasePanel
 
     [field: SerializeField]
     public Liderboard Liderboard { get; private set; }
+
+    [field: SerializeField]
+    public Timer Timer { get; private set; }
 }

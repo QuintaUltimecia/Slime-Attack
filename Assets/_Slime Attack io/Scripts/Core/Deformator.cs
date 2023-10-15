@@ -21,7 +21,6 @@ public class Deformator : MonoBehaviour
 
     public void Restart()
     {
-        _transform.localScale = Vector3.one;
         Value = 1f;
         OnDeformate?.Invoke(Value);
     }

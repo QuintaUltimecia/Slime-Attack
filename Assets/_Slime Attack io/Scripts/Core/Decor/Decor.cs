@@ -11,6 +11,7 @@ public class Decor : BaseBehaviour
     public bool IsAbsorbed { get; protected set; } = false;
 
     public Transform Transform { get; private set; }
+
     protected Transform _target;
     protected Collider _collder;
 
@@ -19,6 +20,7 @@ public class Decor : BaseBehaviour
 
     protected System.Action<float> _callback;
     protected Vector3 _startPosition;
+    protected Transform _lastParent;
 
     public override void OnEnable() { }
     public override void OnDisable() { }
@@ -40,6 +42,7 @@ public class Decor : BaseBehaviour
         _target = target;
         _callback = callback;
         _collder.enabled = false;
+        Transform.SetParent(_target);
 
         OnBeforeAbsorbe?.Invoke();
     }
@@ -51,22 +54,27 @@ public class Decor : BaseBehaviour
 
         if (IsAbsorbed == true)
         {
-            float distance = Vector3.Distance(Transform.position, _target.position) * _speed;
-
-            Transform.position = Vector3.MoveTowards(Transform.position, _target.position, distance * Time.deltaTime);
-            Transform.localScale = Vector3.MoveTowards(Transform.localScale, Vector3.zero, (distance / 2) * Time.deltaTime);
+            Transform.localPosition = Vector3.MoveTowards(Transform.localPosition, Vector3.zero, _speed * Time.deltaTime);
+            Transform.localScale = Vector3.MoveTowards(Transform.localScale, Vector3.zero, _speed / 2 * Time.deltaTime);
 
             if (Transform.localScale == Vector3.zero)
             {
+                Transform.localScale = Vector3.zero;
+
                 _target = null;
-                _updates.Remove(this);
 
                 _callback?.Invoke(Features.DeformPoint);
                 _callback = null;
 
                 OnAfterAbsorbe?.Invoke();
+                _updates.Remove(this);
             }
         }
+    }
+
+    public void DisableAnimation()
+    {
+        _updates.Remove(this);
     }
 
     public void SetPointForDeform(float value)
@@ -77,14 +85,14 @@ public class Decor : BaseBehaviour
 
     public void ResetTransform()
     {
+        Transform.SetParent(_lastParent);
         Transform.localScale = Vector3.one;
-        Transform.position = new Vector3(_startPosition.x, Transform.position.y, _startPosition.z);
     }
 
-    protected void Awake()
+    protected virtual void Awake()
     {
         Transform = transform;
-        _startPosition = Transform.position;
+        _lastParent = Transform.parent;
         _collder = GetComponent<Collider>();
     }
 }

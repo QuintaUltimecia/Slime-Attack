@@ -29,4 +29,14 @@ public class SlimeVFX : MonoBehaviour
 
         mainModule.startSize = minMax;
     }
+
+    public void Enable()
+    {
+        _particleSystem.Play();
+    }
+
+    public void Disable()
+    {
+        _particleSystem.Stop();
+    }
 }

@@ -1,14 +1,14 @@
 using UnityEngine;
 using System.Collections.Generic;
-using System;
 
 public sealed class DecorContainer : MonoBehaviour
 {
     private List<Decor> _decors = new List<Decor>();
+    private List<Building> _building = new List<Building>();
 
     public void Restart()
     {
-        foreach (Decor decor in _decors)
+        foreach (Building decor in _building)
             decor.Restart();
     }
 
@@ -42,11 +42,13 @@ public sealed class DecorContainer : MonoBehaviour
 
     public Decor GetDecorWithDistance(Transform target, float size, Decor origin)
     {
-        float distance = size * 4f;
+        float distance = size * 2f;
         Decor value = null;
 
-        foreach (var decor in _decors)
+        for (int i = 0; i < _decors.Count; i++)
         {
+            Decor decor = _decors[i];
+
             if (decor.IsAbsorbed == false && size >= decor.Features.PointForDeform && origin != decor)
             {
                 if (Vector3.Distance(target.position, decor.Transform.position) < distance)
@@ -62,8 +64,10 @@ public sealed class DecorContainer : MonoBehaviour
         {
             distance = float.MaxValue;
 
-            foreach (var decor in _decors)
+            for (int i = 0; i < _decors.Count; i++)
             {
+                Decor decor = _decors[i];
+
                 if (decor.IsAbsorbed == false && size >= decor.Features.PointForDeform && origin != decor)
                 {
                     if (Vector3.Distance(target.position, decor.Transform.position) < distance)
@@ -90,6 +94,7 @@ public sealed class DecorContainer : MonoBehaviour
             decor.Init(gameFeatures);
 
             _decors.Add(decor);
+            _building.Add(decor);
         }
     }
 }

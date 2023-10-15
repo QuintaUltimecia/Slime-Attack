@@ -19,9 +19,9 @@ public class SlimeSize : BaseBehaviour
 
     private string _description = "Size: ";
 
-    public void Init(Camera camera, Canvas canvas)
+    public void Init(Camera camera, Transform container)
     {
-        _sizeUI = Instantiate(_sizeUIPrefab, canvas.transform);
+        _sizeUI = Instantiate(_sizeUIPrefab, container);
         _camera = camera;
         _transform = transform;
 

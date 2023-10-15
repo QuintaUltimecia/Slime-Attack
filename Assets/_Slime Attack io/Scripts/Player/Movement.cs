@@ -39,6 +39,7 @@ public class Movement : BaseBehaviour, IContainSpeed
         {
             _rigidbody.isKinematic = false;
             _rigidbody.constraints = _defaultConstains;
+            _rigidbody.interpolation = RigidbodyInterpolation.Interpolate;
         }
 
         _isMoving = true;
@@ -51,8 +52,8 @@ public class Movement : BaseBehaviour, IContainSpeed
         if (_rigidbody != null)
         {
             _rigidbody.isKinematic = true;
-            _rigidbody.constraints = RigidbodyConstraints.FreezePositionZ;
-            _rigidbody.constraints = RigidbodyConstraints.FreezePositionX;
+            _rigidbody.constraints = RigidbodyConstraints.FreezePositionZ | RigidbodyConstraints.FreezePositionX;
+            _rigidbody.interpolation = RigidbodyInterpolation.None;
         }
 
         _moveSpeed.StopMultiplier();

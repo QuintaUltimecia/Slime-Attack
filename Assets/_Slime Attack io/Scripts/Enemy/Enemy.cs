@@ -1,4 +1,5 @@
 using UnityEngine;
+using static UnityEditor.Experimental.GraphView.GraphView;
 
 [RequireComponent(typeof(Absorber))]
 [RequireComponent(typeof(EnemyAI))]
@@ -30,10 +31,7 @@ public sealed class Enemy : MonoBehaviour, IAbsorbingStay, IOnLeaderBoard
 
     public System.Action OnRemove;
 
-    private GameObject _gameObject;
-    private Collider _collider;
-
-    public void Init(DecorContainer decorContainer, Camera camera, Canvas canvas, GameFeaturesModule gameFeatures)
+    public void Init(DecorContainer decorContainer, Camera camera, MainCanvas canvas, GameFeaturesModule gameFeatures)
     {
         Absorber = GetComponent<Absorber>();
         EnemyAI = GetComponent<EnemyAI>();
@@ -46,20 +44,33 @@ public sealed class Enemy : MonoBehaviour, IAbsorbingStay, IOnLeaderBoard
 
         EnemyNamesList enemyNamesList = new EnemyNamesList();
 
-        NickName.Init(enemyNamesList.GetRandomName(), camera, canvas);
-        SlimeSize.Init(camera, canvas);
+        NickName.Init(enemyNamesList.GetRandomName(), camera, canvas.GetInternalPanel<GamePanel>().transform);
+        SlimeSize.Init(camera, canvas.GetInternalPanel<GamePanel>().transform);
         SlimeVFX.Init();
 
-        EnemyAI.OnMove += (value) => PlayerAnimationController.Move(value);
-        Absorber.OnAbsorbe += (DecorFeaturesSO) => Deformator.Deformate(DecorFeaturesSO);
-        Decor.OnBeforeAbsorbe += () => { EnemyAI.Disable(); _collider.enabled = false; };
-        Decor.OnAfterAbsorbe += () => Disable();
-        Deformator.OnDeformate += (value) => { SlimeSize.UpdateText(value); Decor.SetPointForDeform(value); SlimeVFX.SetScale(transform.localScale.x); };
-        Deformator.OnDeformate?.Invoke(transform.localScale.x);
-        Colorized.OnColorChanged += (value) => { SlimeVFX.SetColor(value); };
+        EnemyAI.OnMove += (value) => 
+            PlayerAnimationController.Move(value);
 
-        _gameObject = gameObject;
-        _collider = GetComponent<Collider>();
+        Absorber.OnAbsorbe += (DecorFeaturesSO) =>
+        {
+            if (IsActive == true)
+                Deformator.Deformate(DecorFeaturesSO);
+        };
+
+        Decor.OnBeforeAbsorbe += () => 
+            Disable();
+
+        Deformator.OnDeformate += (value) => 
+        { 
+            SlimeSize.UpdateText(value); 
+            Decor.SetPointForDeform(value); 
+            SlimeVFX.SetScale(transform.localScale.x); 
+        };
+
+        Deformator.OnDeformate?.Invoke(transform.localScale.x);
+
+        Colorized.OnColorChanged += (value) => 
+            SlimeVFX.SetColor(value);
     }
 
     public void Enable()
@@ -67,41 +78,31 @@ public sealed class Enemy : MonoBehaviour, IAbsorbingStay, IOnLeaderBoard
         SlimeSize.Enable();
         NickName.Enable();
         Deformator.Restart();
+        Decor.DisableAnimation();
+        Decor.ResetTransform();
+        EnemyAI.ResetPosition();
+        Decor.Restart();
         EnemyAI.Enable();
         EnemyAI.Restart();
+        Colorized.RandomRecolor();
 
         IsActive = true;
-
-        _gameObject.SetActive(true);
-        _collider.enabled = true;
     }
 
     public void Disable()
     {
-        OnRemove?.Invoke();
-
-        SlimeSize.Disable();
+        EnemyAI.Disable();
         NickName.Disable();
-        Deformator.Restart();
+        SlimeSize.Disable();
+        SlimeVFX.Disable();
 
         IsActive = false;
 
-        _gameObject.SetActive(false);
+        OnRemove?.Invoke();
     }
 
-    public Decor GetDecor() =>
-        Decor;
-
-    public Deformator GetDeformator() =>
-        Deformator;
-
-    public int GetSize()
-    {
-        return SlimeSize.Value;
-    }
-
-    public string GetName()
-    {
-        return NickName.Name;
-    }
+    public Decor GetDecor() => Decor;
+    public Deformator GetDeformator() => Deformator;
+    public int GetSize() => SlimeSize.Value;
+    public string GetName() => NickName.Name;
 }

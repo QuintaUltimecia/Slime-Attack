@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
@@ -13,7 +14,10 @@ public class Liderboard : BaseBehaviour
 
     private EnemySpawner _enemySpawner;
     private List<IOnLeaderBoard> _onLeaderBoard;
-    private Player _player;
+    private IOnLeaderBoard _player;
+
+    public int PlayerSize { get; private set; }
+    public int PlayerPlace { get; private set; }
 
     public void Init(EnemySpawner enemySpawner, Player player)
     {
@@ -23,15 +27,12 @@ public class Liderboard : BaseBehaviour
 
     public void CraeateLeaderList()
     {
-        _leaders = new IOnLeaderBoard[_leadersUI.Count];
         _onLeaderBoard = new List<IOnLeaderBoard>();
-
         foreach (var leader in _enemySpawner.Enemies.ToList())
-        {
             _onLeaderBoard.Add(leader);
-        }
 
         _onLeaderBoard.Add(_player);
+        _leaders = new IOnLeaderBoard[_onLeaderBoard.Count];
     }
 
     public override void OnTick()
@@ -78,5 +79,9 @@ public class Liderboard : BaseBehaviour
             if (_leaders[i] != null)
                 _leadersUI[i].text = $"{i+1}.{_leaders[i].GetName()} {_leaders[i].GetSize()}";
         }
+
+        int index = Array.IndexOf(_leaders, _player);
+        PlayerSize = _leaders[index].GetSize();
+        PlayerPlace = index + 1;
     }
 }

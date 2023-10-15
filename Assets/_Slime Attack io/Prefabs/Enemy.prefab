@@ -149,7 +149,6 @@ MonoBehaviour:
   <NickName>k__BackingField: {fileID: 8187366240919071003}
   <SlimeSize>k__BackingField: {fileID: 6862420844501075178}
   <Colorized>k__BackingField: {fileID: 6424493405276726611}
-  <Cone>k__BackingField: {fileID: 0}
 --- !u!114 &7837875930875802201
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -9,7 +9,7 @@ public class EnemySpawner : MonoBehaviour
     private DecorContainer _decorContainer;
     private GameFeaturesModule _gameFeatures;
     private Camera _camera;
-    private Canvas _canvas;
+    private MainCanvas _canvas;
 
     private List<Transform> _points = new List<Transform>();
     private List<Enemy> _enemies = new List<Enemy>();
@@ -21,7 +21,7 @@ public class EnemySpawner : MonoBehaviour
 
     public IEnumerable<Enemy> Enemies { get { return _enemies; } }
 
-    public void Init(DecorContainer decorContainer, Camera camera, Canvas canvas, GameFeaturesModule gameFeatures)
+    public void Init(DecorContainer decorContainer, Camera camera, MainCanvas canvas, GameFeaturesModule gameFeatures)
     {
         _decorContainer = decorContainer;
         _camera = camera;
@@ -54,8 +54,6 @@ public class EnemySpawner : MonoBehaviour
         foreach (Enemy enemy in _enemies)
         {
             enemy.Enable();
-            enemy.Decor.Restart();
-            enemy.Colorized.RandomRecolor();
             _enemyCount++;
         }
     }
@@ -66,6 +64,15 @@ public class EnemySpawner : MonoBehaviour
         {
             if (enemy.IsActive == true)
                 enemy.Disable();
+        }
+    }
+
+    public void StopEnemies()
+    {
+        foreach (var enemy in _enemies)
+        {
+            if (enemy.IsActive == true)
+                enemy.EnemyAI.Disable();
         }
     }
 

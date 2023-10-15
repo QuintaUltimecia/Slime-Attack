@@ -1,5 +1,3 @@
-using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class EntryPoint
@@ -8,7 +6,7 @@ public class EntryPoint
     private MainCamera _mainCamera;
     private MainCanvas _mainCanvas;
     private World _world;
-    private Menu _menu;
+    private GameMenu _menu;
     private Lightning _lightning;
 
     private ResourcesLoader _resourcesLoader;
@@ -21,6 +19,7 @@ public class EntryPoint
         LoadResources();
         Init();
         Subs();
+
         Start();
     }
 
@@ -33,7 +32,7 @@ public class EntryPoint
         _mainCamera = _resourcesLoader.GetResource<MainCamera>(resourcesList.MainCamera);
         _mainCanvas = _resourcesLoader.GetResource<MainCanvas>(resourcesList.MainCanvas);
         _world = _resourcesLoader.GetResource<World>(resourcesList.World);
-        _menu = _resourcesLoader.GetResource<Menu>(resourcesList.Menu);
+        _menu = _resourcesLoader.GetResource<GameMenu>(resourcesList.Menu);
         _lightning = _resourcesLoader.GetResource<Lightning>(resourcesList.Lightning);
     }
 
@@ -47,11 +46,12 @@ public class EntryPoint
         _world.Init(_featuresModule);
         _mainCamera.Init(_player.transform);
         _player.Init(_mainCanvas.GetInternalPanel<GamePanel>().JoyStick, _mainCamera.Camera, _mainCanvas, _featuresModule);
-        _world.EnemySpawner.Init(_world.DecorContainer, _mainCamera.Camera, _mainCanvas.Canvas, _featuresModule);
+        _world.EnemySpawner.Init(_world.DecorContainer, _mainCamera.Camera, _mainCanvas, _featuresModule);
         _mainCanvas.GetInternalPanel<CustomizePanel>().GetInternalPanel<ColorizedPanel>().Init(_player.Colorized);
         _mainCanvas.GetInternalPanel<CustomizePanel>().GetInternalPanel<HeadPanel>().Init(_player.Accessories, _player.Wallet);
         _mainCanvas.GetInternalPanel<CustomizePanel>().GetInternalPanel<MaskPanel>().Init(_player.Accessories, _player.Wallet);
         _mainCanvas.GetInternalPanel<GamePanel>().Liderboard.Init(_world.EnemySpawner, _player);
+        _mainCanvas.GetInternalPanel<GamePanel>().Timer.Init(120);
     }
 
     private void Subs()
@@ -84,6 +84,12 @@ public class EntryPoint
             .OnBeforeAbsorbe += () => GameOver();
 
         _player.Colorized.OnColorChanged += (value) => Save();
+
+        _mainCanvas.GetInternalPanel<GamePanel>().Timer.OnEndTimer += () =>
+        {
+            GameOver();
+            _world.EnemySpawner.StopEnemies();
+        };
     }
 
     private void Start()
@@ -94,7 +100,8 @@ public class EntryPoint
         _mainCamera.CameraMovement.SetPosition(_menu.CameraPoint.position);
         _mainCamera.CameraMovement.SetRotation(_menu.CameraPoint.rotation);
 
-        _player.Disable(_menu.PlayerPoint.position);
+        _player.Disable();
+        _player.Movement.SetPosition(_menu.PlayerPoint.position);
 
         _world.EnemySpawner.SpawnEnemies();
 
@@ -119,10 +126,12 @@ public class EntryPoint
         _mainCamera.CameraMovement.IsMoveToTarget = true;
         _mainCamera.CameraMovement.SetRotation(UnityEngine.Quaternion.Euler(65, 0, 0));
 
-        _player.Enable(_world.GetPlayerSpawnPoint());
+        _player.Movement.SetPosition(_world.GetPlayerSpawnPoint());
+        _player.Enable();
         _mainCamera.CameraMovement.SetPositionToTarget();
 
         _mainCanvas.GetInternalPanel<GamePanel>().JoyStick.Disable();
+        _mainCanvas.GetInternalPanel<GamePanel>().Timer.StartTimer();
 
         _lightning.SetGameRotation();
         _world.EnemySpawner.EnableEnemies();
@@ -132,7 +141,9 @@ public class EntryPoint
     {
         _mainCamera.CameraMovement.IsMoveToTarget = false;
         _mainCanvas.ShowPanel<GameOverPanel>();
-
+        _mainCanvas.GetInternalPanel<GamePanel>().Timer.StopTimer();
+        _mainCanvas.GetInternalPanel<GameOverPanel>().PlayerPlace.SetPlace(_mainCanvas.GetInternalPanel<GamePanel>().Liderboard.PlayerPlace);
+        _mainCanvas.GetInternalPanel<GameOverPanel>().PlayerSize.SetSize(_mainCanvas.GetInternalPanel<GamePanel>().Liderboard.PlayerSize);
         Save();
     }
 
@@ -141,15 +152,17 @@ public class EntryPoint
         GameState.SwitchState<MenuState>();
 
         _world.EnemySpawner.Restart();
-
         _world.DecorContainer.Restart();
+
+        _player.Disable();
+        _player.Decor.ResetTransform();
+        _player.Decor.DisableAnimation();
+        _player.Movement.SetPosition(_menu.PlayerPoint.position);
 
         _mainCanvas.ShowPanel<MenuPanel>();
 
         _mainCamera.CameraMovement.SetPosition(_menu.CameraPoint.position);
         _mainCamera.CameraMovement.SetRotation(_menu.CameraPoint.rotation);
-
-        _player.Disable(_menu.PlayerPoint.position);
 
         _lightning.SetMenuRotation();
     }

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class Menu : MonoBehaviour
+public class GameMenu : MonoBehaviour
 {
     [field: SerializeField]
     public Transform PlayerPoint { get; private set; }
