@@ -53,8 +53,18 @@ public class SlimeSize : BaseBehaviour
         _text.text = $"\n\n{_description}{Value}";
     }
 
-    public override void OnTick()
+    public override void OnLateTick()
     {
         _sizeUITransform.position = _camera.WorldToScreenPoint(_transform.position);
+    }
+
+    public override void OnEnable()
+    {
+        _lateUpdates.Add(this);
+    }
+
+    public override void OnDisable()
+    {
+        _lateUpdates.Add(this);
     }
 }

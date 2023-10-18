@@ -5,7 +5,12 @@ public class Decor : BaseBehaviour
     [field: SerializeField]
     public DecorFeaturesSO Features { get; protected set; }
 
-    protected float _speed = 6f;
+    [SerializeField]
+    protected AnimationCurve _animationCurve;
+
+    protected float _speed = 2f;
+    protected float _y;
+    protected float _heigth = 100f;
 
     [field: SerializeField]
     public bool IsAbsorbed { get; protected set; } = false;
@@ -19,7 +24,6 @@ public class Decor : BaseBehaviour
     public System.Action OnAfterAbsorbe;
 
     protected System.Action<float> _callback;
-    protected Vector3 _startPosition;
     protected Transform _lastParent;
 
     public override void OnEnable() { }
@@ -54,8 +58,10 @@ public class Decor : BaseBehaviour
 
         if (IsAbsorbed == true)
         {
-            Transform.localPosition = Vector3.MoveTowards(Transform.localPosition, Vector3.zero, _speed * Time.deltaTime);
-            Transform.localScale = Vector3.MoveTowards(Transform.localScale, Vector3.zero, _speed / 2 * Time.deltaTime);
+            _y += _speed * Time.deltaTime;
+
+            Transform.localPosition = Vector3.MoveTowards(Transform.localPosition, new Vector3(0, _animationCurve.Evaluate(_y) * _target.localScale.y * _heigth, 0), _speed * Time.deltaTime);
+            Transform.localScale = Vector3.MoveTowards(Transform.localScale, Vector3.zero, _speed / (_target.localScale.y * 2) * Time.deltaTime);
 
             if (Transform.localScale == Vector3.zero)
             {
@@ -66,6 +72,7 @@ public class Decor : BaseBehaviour
                 _callback?.Invoke(Features.DeformPoint);
                 _callback = null;
 
+                _y = 0;
                 OnAfterAbsorbe?.Invoke();
                 _updates.Remove(this);
             }
