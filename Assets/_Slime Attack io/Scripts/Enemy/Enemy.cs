@@ -43,8 +43,8 @@ public sealed class Enemy : MonoBehaviour, IAbsorbingStay, IOnLeaderBoard
 
         EnemyNamesList enemyNamesList = new EnemyNamesList();
 
-        NickName.Init(enemyNamesList.GetRandomName(), camera, canvas.GetInternalPanel<GamePanel>().transform);
-        SlimeSize.Init(camera, canvas.GetInternalPanel<GamePanel>().transform);
+        NickName.Init(enemyNamesList.GetRandomName(), camera, canvas.GetPanel<GamePanel>().transform);
+        SlimeSize.Init(camera, canvas.GetPanel<GamePanel>().transform);
         SlimeVFX.Init();
 
         EnemyAI.OnMove += (value) => 

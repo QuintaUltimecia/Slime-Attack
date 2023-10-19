@@ -42,23 +42,23 @@ public sealed class DecorContainer : MonoBehaviour
 
     public Decor GetDecorWithDistance(Transform target, float size, Decor origin)
     {
-        float distance = size * 2f;
+        float distance; // size * 2f;
         Decor value = null;
 
-        for (int i = 0; i < _decors.Count; i++)
-        {
-            Decor decor = _decors[i];
+        //for (int i = 0; i < _decors.Count; i++)
+        //{
+        //    Decor decor = _decors[i];
 
-            if (decor.IsAbsorbed == false && size >= decor.Features.PointForDeform && origin != decor)
-            {
-                if (Vector3.Distance(target.position, decor.Transform.position) < distance)
-                {
-                    value = decor;
+        //    if (decor.IsAbsorbed == false && size >= decor.Features.PointForDeform && origin != decor)
+        //    {
+        //        if (Vector3.Distance(target.position, decor.Transform.position) < distance)
+        //        {
+        //            value = decor;
 
-                    break;
-                }
-            }
-        }
+        //            break;
+        //        }
+        //    }
+        //}
 
         if (value == null)
         {

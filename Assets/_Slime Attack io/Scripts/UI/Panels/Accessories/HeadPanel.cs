@@ -1,8 +1,8 @@
-using System;
-using TMPro;
 using UnityEngine;
+using TMPro;
+using System;
 
-public class MaskPanel : BasePanel
+public class HeadPanel : BasePanel
 {
     [SerializeField]
     private ArrowButton _leftArrow;
@@ -36,18 +36,18 @@ public class MaskPanel : BasePanel
 
     public void Select()
     {
-        _accessories.ApplyMask();
+        _accessories.ApplyHead();
         ActivePurchased();
+
+        Debug.Log("Select Head");
     }
 
     private void OnEnable()
     {
         if (_accessories != null)
         {
-            _text.text = _accessories.GetMaskFeatures().Name;
-            _count = _accessories.CurrentMask;
-
-            Debug.Log(_accessories.CurrentMask);
+            _text.text = _accessories.GetHeadFeatures().Name;
+            _count = _accessories.CurrentHead;
             ActivePurchased();
         }
     }
@@ -55,8 +55,8 @@ public class MaskPanel : BasePanel
     private void ActiveLeft()
     {
         _count--;
-        _accessories.ActiveMasks(ref _count);
-        _text.text = _accessories.GetMaskFeatures().Name;
+        _accessories.ActiveHeads(ref _count);
+        _text.text = _accessories.GetHeadFeatures().Name;
 
         ActivePurchased();
     }
@@ -64,19 +64,19 @@ public class MaskPanel : BasePanel
     private void ActiveRight()
     {
         _count++;
-        _accessories.ActiveMasks(ref _count);
-        _text.text = _accessories.GetMaskFeatures().Name;
+        _accessories.ActiveHeads(ref _count);
+        _text.text = _accessories.GetHeadFeatures().Name;
 
         ActivePurchased();
     }
 
     private void Buy()
     {
-        if (_wallet.Value >= _accessories.GetMaskFeatures().Price)
+        if (_wallet.Value >= _accessories.GetHeadFeatures().Price)
         {
-            _accessories.SetMaskPurchased();
+            _accessories.SetHeadPurchased();
             ActivePurchased();
-            _wallet.RemoveWallet(_accessories.GetMaskFeatures().Price);
+            _wallet.RemoveWallet(_accessories.GetHeadFeatures().Price);
             Select();
 
             OnBuy?.Invoke();
@@ -85,22 +85,22 @@ public class MaskPanel : BasePanel
 
     private void ActivePurchased()
     {
-        if (_accessories.GetMaskPurchased() == false)
+        if (_accessories.GetHeadPurchased() == false)
         {
             _buyPanel.Enable();
-            _buyPanel.SetPrice(_accessories.GetMaskFeatures().Price);
-            _buyPanel.GetInternalButton<BuyButton>().OnClick = () => Buy();
-            GetInternalButton<SelectableButton>().Disable();
+            _buyPanel.SetPrice(_accessories.GetHeadFeatures().Price);
+            _buyPanel.GetButton<BuyButton>().OnClick = () => Buy();
+            GetButton<SelectableButton>().Disable();
         }
         else
         {
             _buyPanel.Disable();
 
-            if (_accessories.CurrentMasksIsLast())
-                GetInternalButton<SelectableButton>().Disable();
+            if (_accessories.CurrentHeadIsLast())
+                GetButton<SelectableButton>().Disable();
             else
             {
-                GetInternalButton<SelectableButton>().Enable();
+                GetButton<SelectableButton>().Enable();
             }
         }
     }

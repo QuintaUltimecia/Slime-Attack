@@ -132,7 +132,12 @@ public class Accessories : MonoBehaviour
         PlayerData playerData = saveSystem.Load<PlayerData>();
 
         if (playerData != null)
+        {
             for (int i = 0; i < playerData.Masks.Length; i++)
                 MasksPurchased[i] = playerData.Masks[i].IsPurchased;
+
+            for (int i = 0; i < playerData.Heads.Length; i++)
+                HeadsPurchased[i] = playerData.Heads[i].IsPurchased;
+        }
     }
 }

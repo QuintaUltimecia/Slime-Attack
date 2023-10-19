@@ -42,7 +42,7 @@ public sealed class Player : MonoBehaviour, IAbsorbingStay, IOnLeaderBoard
 
         Movement.Init(input, gameFeatures.SlimeSpeed);
         Absorber.Init(Deformator);
-        SlimeSize.Init(camera, mainCanvas.GetInternalPanel<GamePanel>().transform);
+        SlimeSize.Init(camera, mainCanvas.GetPanel<GamePanel>().transform);
         Deformator.Init();
         Accessories.Init();
         SpeedParticle.Init(Movement);

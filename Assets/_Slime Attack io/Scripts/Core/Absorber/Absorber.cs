@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEditor.Progress;
 
 public class Absorber : MonoBehaviour
 {
@@ -61,7 +62,7 @@ public class Absorber : MonoBehaviour
         {
             if (_deformator.GetSize() > absorbingStay.GetDeformator().GetSize() && absorbingStay.GetDecor().IsAbsorbed == false)
             {
-                _deformator.Deformate(Time.deltaTime / 2);
+                _deformator.Deformate(Time.deltaTime / 3);
                 absorbingStay.GetDeformator().Deformate(-Time.deltaTime);
 
                 if (absorbingStay.GetDeformator().GetSize() <= 1f)
@@ -83,11 +84,10 @@ public class Absorber : MonoBehaviour
             {
                 absorbeing.GetDecor().Absorbe(_transform, (DecorFeaturesSO) => OnAbsorbe?.Invoke(DecorFeaturesSO));
                 absorbeings.Add(absorbeing);
+                _absorbeings.Remove(absorbeing);
+
+                break;
             }
         }
-
-        if (absorbeings.Count > 0)
-            foreach (var item in absorbeings)
-                _absorbeings.Remove(item);
     }
 }

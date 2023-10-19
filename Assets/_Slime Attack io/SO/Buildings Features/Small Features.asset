@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 994e6b11bb75f0f44b29864fd57c37ab, type: 3}
   m_Name: Small Features
   m_EditorClassIdentifier: 
-  <DeformPoint>k__BackingField: 0.01
+  <DeformPoint>k__BackingField: 0.005
   <PointForDeform>k__BackingField: 1

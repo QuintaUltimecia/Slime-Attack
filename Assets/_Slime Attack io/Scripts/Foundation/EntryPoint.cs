@@ -1,5 +1,5 @@
 using Facebook.Unity;
-using System;
+using System.Threading.Tasks;
 using UnityEngine;
 
 public class EntryPoint
@@ -13,8 +13,6 @@ public class EntryPoint
 
     private ResourcesLoader _resourcesLoader;
     private GameFeaturesModule _featuresModule;
-
-    private float _timeLevel;
 
     public EntryPoint(ResourcesLoader resourcesLoader)
     {
@@ -43,42 +41,68 @@ public class EntryPoint
     private void Init()
     {
         GameState gameState = new GameState();
-        gameState.Init();
-        GameState.Instance.Init();
 
-        _mainCanvas.Init();
-        _world.Init(_featuresModule);
-        _mainCamera.Init(_player.transform);
-        _player.Init(_mainCanvas.GetInternalPanel<GamePanel>().JoyStick, _mainCamera.Camera, _mainCanvas, _featuresModule);
-        _world.EnemySpawner.Init(_world.DecorContainer, _mainCamera.Camera, _mainCanvas, _featuresModule);
-        _mainCanvas.GetInternalPanel<CustomizePanel>().GetInternalPanel<ColorizedPanel>().Init(_player.Colorized);
-        _mainCanvas.GetInternalPanel<CustomizePanel>().GetInternalPanel<HeadPanel>().Init(_player.Accessories, _player.Wallet);
-        _mainCanvas.GetInternalPanel<CustomizePanel>().GetInternalPanel<MaskPanel>().Init(_player.Accessories, _player.Wallet);
-        _mainCanvas.GetInternalPanel<GamePanel>().Liderboard.Init(_world.EnemySpawner, _player);
-        _mainCanvas.GetInternalPanel<GamePanel>().Timer.Init(120);
+        gameState
+            .Init();
+
+        GameState.Instance
+            .Init();
+
+        _mainCanvas
+            .Init();
+
+        _world
+            .Init(_featuresModule);
+
+        _mainCamera
+            .Init(_player.transform);
+
+        _player
+            .Init(_mainCanvas.GetPanel<GamePanel>().JoyStick, _mainCamera.Camera, _mainCanvas, _featuresModule);
+
+        _world.EnemySpawner
+            .Init(_world.DecorContainer, _mainCamera.Camera, _mainCanvas, _featuresModule);
+
+        _mainCanvas.GetPanel<ColorizedPanel>()
+            .Init(_player.Colorized);
+
+        _mainCanvas.GetPanel<HeadPanel>()
+            .Init(_player.Accessories, _player.Wallet);
+
+        _mainCanvas.GetPanel<MaskPanel>()
+            .Init(_player.Accessories, _player.Wallet);
+
+        _mainCanvas.GetPanel<GamePanel>().Liderboard
+            .Init(_world.EnemySpawner, _player);
+
+        _mainCanvas.GetPanel<MenuPanel>().BestSize
+            .Init();
+
+        _mainCanvas.GetPanel<GamePanel>().Timer
+            .Init(_featuresModule.Timer);
     }
 
     private void Subs()
     {
-        _mainCanvas.GetInternalPanel<MenuPanel>().GetInternalButton<StartButton>()
+        _mainCanvas.GetButton<StartButton>()
             .OnClick += () => StartGame();
 
-        _mainCanvas.GetInternalPanel<GameOverPanel>().GetInternalButton<MenuButton>()
+        _mainCanvas.GetButton<MenuButton>()
             .OnClick += () => BackToMenu();
 
-        _mainCanvas.GetInternalPanel<MenuPanel>().GetInternalButton<CustomizeButton>()
+        _mainCanvas.GetButton<CustomizeButton>()
             .OnClick += () => _mainCanvas.ShowPanel<CustomizePanel>();
 
-        _mainCanvas.GetInternalPanel<CustomizePanel>().GetInternalPanel<MaskPanel>()
+        _mainCanvas.GetPanel<MaskPanel>()
             .OnBuy += () => Save();
 
-        _mainCanvas.GetInternalPanel<CustomizePanel>().GetInternalPanel<HeadPanel>()
+        _mainCanvas.GetPanel<HeadPanel>()
             .OnBuy += () => Save();
 
-        _mainCanvas.GetInternalPanel<CustomizePanel>().GetInternalPanel<MaskPanel>().GetInternalButton<SelectableButton>()
+        _mainCanvas.GetButton<SelectableButton>()
             .OnClick += () => Save();
 
-        _mainCanvas.GetInternalPanel<CustomizePanel>().GetInternalPanel<HeadPanel>().GetInternalButton<SelectableButton>()
+        _mainCanvas.GetButton<SelectableButton>()
             .OnClick += () => Save();
 
         _world.EnemySpawner
@@ -87,9 +111,10 @@ public class EntryPoint
         _player.Decor
             .OnBeforeAbsorbe += () => GameOver();
 
-        _player.Colorized.OnColorChanged += (value) => Save();
+        _player.Colorized
+            .OnColorChanged += (value) => Save();
 
-        _mainCanvas.GetInternalPanel<GamePanel>().Timer.OnEndTimer += () =>
+        _mainCanvas.GetPanel<GamePanel>().Timer.OnEndTimer += () =>
         {
             GameOver();
             _world.EnemySpawner.StopEnemies();
@@ -109,26 +134,17 @@ public class EntryPoint
 
         _world.EnemySpawner.SpawnEnemies();
 
-        _mainCanvas.GetInternalPanel<GamePanel>().Liderboard.CraeateLeaderList();
+        _mainCanvas.GetPanel<GamePanel>().Liderboard.CreateLeaderList();
 
         _world.DecorContainer.AddDecor(_player.Decor);
         _lightning.SetMenuRotation();
 
-        Application.targetFrameRate = 1000;
-
         Load();
 
-        _mainCanvas.GetInternalPanel<CustomizePanel>().GetInternalPanel<ColorizedPanel>().StartColor();
+        _mainCanvas.GetPanel<ColorizedPanel>().StartColor();
 
-        string key = "startgame";
-        int valueStart = PlayerPrefs.GetInt(key);
-        valueStart++;
-        PlayerPrefs.SetInt(key, valueStart);
-
-        string json = '{' + $" \"count\": \"{valueStart}\", \"days since reg\": \"{GetDays()}\"" + '}';
-        //AppMetrica.Instance.ReportEvent("game_start", json);
-
-        FB.LogAppEvent("game_start", valueStart);
+        Application.targetFrameRate = 1000;
+        Analytics.Start();
     }
 
     private void StartGame()
@@ -144,47 +160,25 @@ public class EntryPoint
         _player.Enable();
         _mainCamera.CameraMovement.SetPositionToTarget();
 
-        _mainCanvas.GetInternalPanel<GamePanel>().JoyStick.Disable();
-        _mainCanvas.GetInternalPanel<GamePanel>().Timer.StartTimer();
+        _mainCanvas.GetPanel<GamePanel>().JoyStick.Disable();
+        _mainCanvas.GetPanel<GamePanel>().Timer.StartTimer();
 
         _lightning.SetGameRotation();
         _world.EnemySpawner.EnableEnemies();
 
-        string key = "levelstart";
-        int levelStart = PlayerPrefs.GetInt(key);
-        levelStart++;
-        PlayerPrefs.SetInt(key, levelStart);
-
-        //AppMetrica.Instance.SendEventsBuffer();
-        //string json = '{' + $" \"level\": \"{_canvas.GamePanel.LevelManager.Count}\", \"days since reg\": \"{GetDays()}\" " + '}';
-        //AppMetrica.Instance.ReportEvent("level_start", json);
-
-        FB.LogAppEvent("level_start", levelStart);
-
-        DateTime time = DateTime.Now;
-        _timeLevel = time.Second;
+        Analytics.StartGame();
     }
 
     private void GameOver()
     {
         _mainCamera.CameraMovement.IsMoveToTarget = false;
         _mainCanvas.ShowPanel<GameOverPanel>();
-        _mainCanvas.GetInternalPanel<GamePanel>().Timer.StopTimer();
-        _mainCanvas.GetInternalPanel<GameOverPanel>().PlayerPlace.SetPlace(_mainCanvas.GetInternalPanel<GamePanel>().Liderboard.PlayerPlace);
-        _mainCanvas.GetInternalPanel<GameOverPanel>().PlayerSize.SetSize(_mainCanvas.GetInternalPanel<GamePanel>().Liderboard.PlayerSize);
+        _mainCanvas.GetPanel<GamePanel>().Timer.StopTimer();
+        _mainCanvas.GetPanel<GameOverPanel>().PlayerPlace.SetPlace(_mainCanvas.GetPanel<GamePanel>().Liderboard.PlayerPlace);
+        _mainCanvas.GetPanel<GameOverPanel>().PlayerSize.SetSize(_mainCanvas.GetPanel<GamePanel>().Liderboard.PlayerSize);
         Save();
 
-        DateTime time = DateTime.Now;
-        _timeLevel = time.Second - _timeLevel;
-
-        //AppMetrica.Instance.SendEventsBuffer();
-        //string json = '{' + $" \"level\": \"{_canvas.GamePanel.LevelManager.Count}\", \"time_spent\": \"{_timeLevel}\", \"days since reg\": \"{GetDays()}\" " + '}';
-        //AppMetrica.Instance.ReportEvent("level_complete", json);
-
-        string key = "levelstart";
-        int levelStart = PlayerPrefs.GetInt(key);
-
-        FB.LogAppEvent("level_complete", levelStart);
+        Analytics.GameOver();
     }
 
     private void BackToMenu()
@@ -207,10 +201,19 @@ public class EntryPoint
         _lightning.SetMenuRotation();
     }
 
-    private void Save()
+    private async void Save()
     {
+        await Task.Delay(1000);
+
         SaveSystem saveSystem = new SaveSystem(false);
         PlayerData playerData = new PlayerData();
+
+        playerData.BestSize = _mainCanvas.GetPanel<MenuPanel>().BestSize.Value;
+
+        if (_player.SlimeSize.Value > playerData.BestSize)
+            playerData.BestSize = Mathf.RoundToInt(_player.Deformator.Value * 100);
+
+        _mainCanvas.GetPanel<MenuPanel>().BestSize.SetBastSize(playerData.BestSize);
 
         playerData.Wallet = _player.Wallet.Value;
         playerData.Color = _player.Colorized.GetColor();
@@ -263,21 +266,16 @@ public class EntryPoint
             _player.Colorized.RecolorG(playerData.Color.g);
             _player.Colorized.RecolorB(playerData.Color.b);
 
+            _mainCanvas.GetPanel<MenuPanel>().BestSize.SetBastSize(playerData.BestSize);
+
             Debug.Log("Load Data");
         }
         else
         {
             _player.Colorized.RandomRecolor();
+            _mainCanvas.GetPanel<MenuPanel>().BestSize.SetBastSize(0);
 
             Debug.Log("Create Data");
         }
-    }
-
-    private int GetDays()
-    {
-        DateSaver.SaveDate();
-        DateTime dateTime = DateSaver.LoadDate();
-        DateTime dateTimeNow = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day);
-        return (dateTimeNow - dateTime).Days;
     }
 }

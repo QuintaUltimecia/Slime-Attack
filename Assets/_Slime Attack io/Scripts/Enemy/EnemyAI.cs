@@ -18,6 +18,7 @@ public class EnemyAI : BaseBehaviour, IInput
     private Decor _origin;
 
     private Coroutine _timerRoutine;
+    private bool _isActive = false;
 
     public System.Action<bool> OnMove;
 
@@ -48,9 +49,17 @@ public class EnemyAI : BaseBehaviour, IInput
         _transform.localPosition = Vector3.zero;
     }
 
-    public void Enable() => _movement.Enable();
+    public void Enable()
+    {
+        _isActive = true;
+
+        _movement.Enable();
+    }
+
     public void Disable()
     {
+        _isActive = false;
+
         if (_timerRoutine != null)
             StopCoroutine(_timerRoutine);
 
@@ -76,8 +85,11 @@ public class EnemyAI : BaseBehaviour, IInput
         }
     }
 
-    public override void OnTick()
+    public override void OnLateTick()
     {
+        if (_isActive == false)
+            return;
+
         if (_target != null && _target.IsAbsorbed == true || 
             _target != null && _deformator.GetSize() <= _target.Features.PointForDeform)
         {
@@ -102,7 +114,17 @@ public class EnemyAI : BaseBehaviour, IInput
             }
         }
     }
-    
+
+    public override void OnEnable()
+    {
+        _lateUpdates.Add(this);
+    }
+
+    public override void OnDisable()
+    {
+        _lateUpdates.Remove(this);
+    }
+
     private IEnumerator Timer(System.Action callBack)
     {
         yield return new WaitForSeconds(3f);

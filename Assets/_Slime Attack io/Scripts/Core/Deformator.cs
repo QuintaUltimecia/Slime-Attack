@@ -9,7 +9,13 @@ public class Deformator : MonoBehaviour
 
     public System.Action<float> OnDeformate;
 
-    public float GetSize() => Value;
+    public float GetSize()
+    {
+        if (Value < 1f)
+            return 1f;
+
+        return Value;
+    }
 
     public void Init()
     {
