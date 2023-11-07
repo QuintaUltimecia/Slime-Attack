@@ -14,3 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   BuildingRefreshTime: 24
   SlimeSpeed: 6
+  Timer: 120

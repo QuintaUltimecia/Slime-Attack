@@ -90,7 +90,7 @@ public class EnemyAI : BaseBehaviour, IInput
         if (_isActive == false)
             return;
 
-        if (_target != null && _target.IsAbsorbed == true || 
+        if (_target != null && _target.IsAbsorbed == true ||
             _target != null && _deformator.GetSize() <= _target.Features.PointForDeform)
         {
             _target = _decorContainer.GetDecorWithDistance(_transform, _deformator.GetSize(), _origin);
